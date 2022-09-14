@@ -1,3 +1,5 @@
+
+#packages
 library(Rlab)
 library(MCMCpack)
 library(invgamma)
@@ -11,6 +13,8 @@ library(heavy)
 library(locfit)
 library(mvtnorm)
 
+
+#settings
 n_patients<- 100                # Number of patients set per treatment arm per trial in simulation
 n_hist_trials <- 3              # Number of historical trials
 baseline_mean <- 10             # baseline mean of the linear regression model
@@ -20,10 +24,13 @@ intervention_effect<- 0         # Treatment effect
 adjustment<- 1                  # Covariates are added in the model
 niter=10000                     # number of iterations
 
-####    The following source is the lists of scenarios.
+
+#list of scenarios in the simulation study
 source("../Scenarios_list.R",local=TRUE)
 
+
 set.seed(sim)  #Use the same seed for each scenario
+
 
 trialnr<-rep(0,(n_hist_trials+2)*n_patients)
 response<- rep(0,(n_hist_trials+2)*n_patients)
@@ -31,6 +38,7 @@ intervention<- rep(0,(n_hist_trials+2)*n_patients)
 catagorical<- rep(0,(n_hist_trials+2)*n_patients)
 continuous<- rep(0,(n_hist_trials+2)*n_patients)
 trial_effect_indiv<- rep(0,(n_hist_trials+2)*n_patients)
+
 
 ### Historical trials
 for (i in 1:(n_hist_trials)){
@@ -60,6 +68,7 @@ for (i in 1:(n_hist_trials)){
   }  
 }
 
+
 ### Control group of the current trial 
 i<- n_hist_trials+1  
 intercept_current_trial<-rnorm(n=1,mean= baseline_mean ,sd=sd_trial_effect_mean)
@@ -79,7 +88,8 @@ for (j in 1:n_patients){
   response[(i-1)*n_patients+j]<-rnorm(n=1,trial_effect_indiv[(i-1)*n_patients+j],sd_data)
 } 
 
-###  Intervention group of current trial
+
+#Intervention group of current trial
 i<-n_hist_trials+2   
 for (j in 1:n_patients){  
   intervention[(i-1)*n_patients+j]<-1
@@ -97,7 +107,8 @@ for (j in 1:n_patients){
 }  
 dataset<-data.frame(Trial=trialnr,response=response,InterventionArray=intervention,catagorical=catagorical,continuous=continuous)
 
-#### Variable names   
+
+#Variable names   
 response= dataset$response
 Intervention= dataset$InterventionArray
 cata= dataset$catagorical
@@ -127,6 +138,8 @@ n0=rep(n_patients,n_hist_trials) # number of each historical trial
 n= 2*n_patients                  # total number of patients in current trial
 N=sum(n0)+n                      # total number of patients in the study
 dim=ncol(X0[[1]])                # dimention of the covariate matrix
+
+
 
 ######  Initials for  Bayesian LM parametes  ######
 a0  <- 0.001   ###### a0=v0/2; v0 = 0.02
