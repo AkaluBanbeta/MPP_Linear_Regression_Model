@@ -1,6 +1,7 @@
     #Making analysis based on eight methods; four versions of the modified power prior (MPP),
     #two versions of Meta-analytic predictive (MAP) prior, pooling all data and ignoring the historical data
     
+
     #Data preparation
     source("../Data_preparation",local=TRUE)
     
@@ -48,7 +49,6 @@
     }
     result_MPP_Ind<-as.mcmc(as.data.frame((beta_MPP_Ind))) 
     summary(result_MPP_Ind)
-    
     
     
     #MH with dependent weights (DMPP)
@@ -105,7 +105,6 @@
     summary(result_Robust_DMPP_1)
    
     
-    
     #MH for Robust_DMPP_2
     return_MH_Robust_DMPP_2=MH_Robust_DMPP_2(niter,post_mean,X0,Y0,n0,dim,a0,b0,mu0,Lambda0,X,Y,n,post_mean,post_sd,n_hist_trials)
     ## posterior weights
@@ -133,7 +132,6 @@
     summary(result_Robust_DMPP_2)
     
     
-    
     #Bayesian meta-analystic-predictive (MAP) analysis 
     MAP_data = list(response=response, Intervention=Intervention,cata=cata,cont=cont,
                     Trial=dataset$Trial,minTrial=min(dataset$Trial),maxTrial=max(dataset$Trial),N=N) 
@@ -149,7 +147,6 @@
     varnames(result_MAP)[5]<-"sigmasq"
     varnames(result_MAP)[6]<-"tau"
     summary(result_MAP)
-    
     
     
     #Bayesian Robust_MAP data analysis  
