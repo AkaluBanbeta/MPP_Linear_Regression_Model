@@ -1,31 +1,30 @@
-    #########    Making analysis based on eight methods   #######
+    #Making analysis based on eight methods; four versions of the modified power prior (MPP),
+    #two versions of Meta-analytic predictive (MAP) prior, pooling all data and ignoring the historical data
     
-    # Preparing data for analysis
+    #Data preparation
     source("../Data_preparation",local=TRUE)
     
   
-    ## This source is a function which returns ML, SC,lambda,mu,a,b with 
-    ## given data and weight values; the function is denoted by f0
-    source("../function0_ML.R",local=TRUE)
+    #Function which returns ML, SC,lambda,mu,a,b with: given data and weight values
+    source("../The MPP/function0_ML.R",local=TRUE)
  
     
-    # code source fof estimating the weight parameters without prior
-    source("../weightwithoutprior.R",local=TRUE)
+    #Estimating the weight parameters without prior
+    source("../The MPP/weightwithoutprior.R",local=TRUE)
 
-    
-    source("../function_estBetaParams.R",local=TRUE)
-    ## This source is a function that gives alpha and beta given mu and sigmasq of beta distribution
-    
-    
-    source("../function_logitbeta.R",local=TRUE)
-    ## Function used to sample the weights in logit scale 
+    #Function that gives alpha and beta given mu and sigmasq of beta distribution
+    source("../The MPP/function_estBetaParams.R",local=TRUE)
     
     
-    ## This source is for MH functions for MPP methods
-    source("../function_MH_MPPs.R",local=TRUE)
+    #Function used to sample the weights in logit scale 
+    source("../The MPP/function_logitbeta.R",local=TRUE)
     
     
-    ## MH function for MPP with independent power paarameter (MPP_Ind) 
+    #Metropolist-Hastings (MH) algorithm for four versions of MPP 
+    source("../The MPP/function_MH_MPPs.R",local=TRUE)
+    
+    
+    #MH with independent power paarameter (MPP_Ind) 
     return_MH_MPP_Ind=MH_MPP_Ind(niter,post_mean,X0,Y0,n0,dim,a0,b0,mu0,Lambda0,X,Y,n,post_mean,post_sd,n_hist_trials)
     postweight_MPP_Ind=return_MH_MPP_Ind$s_weight
     n_MPP_Ind_post <- length(postweight_MPP_Ind[,1]) 
@@ -52,10 +51,10 @@
     
     
     
-    ## MH function for MPP with dependent weihts (DMPP)
+    #MH with dependent weights (DMPP)
     return_MH_DMPP=MH_DMPP(niter,post_mean,X0,Y0,n0,dim,a0,b0,mu0,Lambda0,X,Y,n,post_mean,post_sd,n_hist_trials)
-   
-     postweight_DMPP=return_MH_DMPP$s_weight
+    #posterior of power parameters Robust_DMPP_1
+    postweight_DMPP=return_MH_DMPP$s_weight
     n_DMPP_post <- length(postweight_DMPP[,1])
     Lambda_DMPP = list(n_DMPP_post)
     mu_DMPP = list(n_DMPP_post)
@@ -79,9 +78,8 @@
     
     
     
-    ## MH function for Robust_DMPP_1
+    ## MH for Robust_DMPP_1
     return_MH_Robust_DMPP_1=MH_Robust_DMPP_1(niter,post_mean,X0,Y0,n0,dim,a0,b0,mu0,Lambda0,X,Y,n,post_mean,post_sd,n_hist_trials)
-   
     # posterior of power parameters Robust_DMPP_1
     postweight_Robust_DMPP_1=return_MH_Robust_DMPP_1$s_weight 
     n_Robust_DMPP_1_post <- length(postweight_Robust_DMPP_1[,1])
@@ -108,7 +106,7 @@
    
     
     
-    ## This source is for MH function for Robust_DMPP_2
+    #MH for Robust_DMPP_2
     return_MH_Robust_DMPP_2=MH_Robust_DMPP_2(niter,post_mean,X0,Y0,n0,dim,a0,b0,mu0,Lambda0,X,Y,n,post_mean,post_sd,n_hist_trials)
     ## posterior weights
     postweight_Robust_DMPP_2=return_MH_Robust_DMPP_2$s_weight
@@ -136,7 +134,7 @@
     
     
     
-    ############  Bayesian meta-analystic-predictive (MAP) analysis 
+    #Bayesian meta-analystic-predictive (MAP) analysis 
     MAP_data = list(response=response, Intervention=Intervention,cata=cata,cont=cont,
                     Trial=dataset$Trial,minTrial=min(dataset$Trial),maxTrial=max(dataset$Trial),N=N) 
     MAP_inits <- function() {list (beta0=0,beta1=0,beta2=0,beta3=0,isigmasq=1,tau=1,.RNG.name="base::Mersenne-Twister",.RNG.seed=80000+sim)}
@@ -154,7 +152,7 @@
     
     
     
-    ############  Bayesian Robust_MAP data analysis  
+    #Bayesian Robust_MAP data analysis  
     Robust_MAP_data = list(response=response, Intervention=Intervention,cata=cata,cont=cont,
                            Trial=dataset$Trial,minTrial=min(dataset$Trial),maxTrial=max(dataset$Trial),N=N) 
     Robust_MAP_inits <- function() {list (beta0=0,beta1=0,beta2=0,beta3=0,isigmasq=1,tau=1,wr=2,.RNG.name="base::Mersenne-Twister",.RNG.seed=80000+sim)}
