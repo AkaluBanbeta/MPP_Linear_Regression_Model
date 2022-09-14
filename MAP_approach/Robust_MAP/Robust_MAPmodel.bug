@@ -1,0 +1,22 @@
+model {
+  for (i in 1:N){
+    response[i]~dnorm(mu[i],isigmasq)
+    mu[i] <- beta0+beta1*Intervention[i]+beta2*cata[i]+beta3*cont[i]+theta[Trial[i]]
+  }
+  beta0~dnorm(0,1E-4)
+  beta1~dnorm(0,1E-4)
+  beta2~dnorm(0,1E-4)
+  beta3~dnorm(0,1E-4)
+  for (i in minTrial:(maxTrial-1)){
+    theta[i] ~ dnorm(0, itausq)
+  } 
+  itausq <- pow(tau, -2)
+  tau ~ dnorm(0, 4)I(0,)
+  wr~dcat(c(0.9,0.1))
+  precision[1]<-itausq
+  precision[2]<-1
+  theta[maxTrial]   ~  dnorm(0, precision[wr])
+  isigmasq~dgamma(0.001,0.001)
+  sigmasq<- 1/isigmasq
+  wr_post<-wr-1
+}
