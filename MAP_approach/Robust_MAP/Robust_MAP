@@ -1,0 +1,21 @@
+    #Bayesian Robust_MAP data analysis  
+    
+
+    #Preparing data for analysis
+    source("../Data_preparation",local=TRUE)
+    
+    
+    #model
+    #source("../Robust_MAPmodel.bug",local=TRUE)
+   
+    
+    Robust_MAP_data = list(response=response, Intervention=Intervention,cata=cata,cont=cont,
+                           Trial=dataset$Trial,minTrial=min(dataset$Trial),maxTrial=max(dataset$Trial),N=N) 
+    Robust_MAP_inits <- function() {list (beta0=0,beta1=0,beta2=0,beta3=0,isigmasq=1,tau=1,wr=2,.RNG.name="base::Mersenne-Twister",.RNG.seed=80000+sim)}
+    Robust_MAP_parameters.to.save<- c("beta0","beta1","beta2","beta3","sigmasq","tau","wr_post")
+    Robust_MAP_model<-jags.model(file="Robust_MAPmodel", data= Robust_MAP_data, inits=Robust_MAP_inits , n.chains=1, n.adapt=2*niter)
+    update(Robust_MAP_model, n.iter=2*niter) # burn in
+    result_Robust_MAP<-coda.samples(Robust_MAP_model, variable.names=Robust_MAP_parameters.to.save,thin = 5, n.iter=5*niter)
+    summary(result_Robust_MAP)
+  
+  
