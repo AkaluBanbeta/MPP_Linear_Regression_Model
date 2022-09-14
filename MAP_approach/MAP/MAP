@@ -1,0 +1,27 @@
+    #Bayesian meta-analystic-predictive (MAP) analysis 
+    
+
+    #Preparing data for analysis
+    source("../Data_preparation",local=TRUE)
+    
+    
+    # MAP model
+    #source("../MAPmodel.bug",local=TRUE)
+    
+    
+    MAP_data = list(response=response, Intervention=Intervention,cata=cata,cont=cont,
+                    Trial=dataset$Trial,minTrial=min(dataset$Trial),maxTrial=max(dataset$Trial),N=N) 
+    MAP_inits <- function() {list (beta0=0,beta1=0,beta2=0,beta3=0,isigmasq=1,tau=1,.RNG.name="base::Mersenne-Twister",.RNG.seed=80000+sim)}
+    MAP_parameters.to.save<- c("beta0","beta1","beta2","beta3","sigmasq","tau")
+    MAP_model<-jags.model(file="MAPmodel.bug", data=  MAP_data, inits=MAP_inits , n.chains=1, n.adapt=2*niter) 
+    update(MAP_model, n.iter=2*niter) # burn in
+    result_MAP<-coda.samples(MAP_model, variable.names=MAP_parameters.to.save,thin = 5, n.iter=5*niter)
+    varnames(result_MAP)[1]<-"Beta0"
+    varnames(result_MAP)[2]<-"Treatment_effect"
+    varnames(result_MAP)[3]<-"Categorical"
+    varnames(result_MAP)[4]<-"Continuous"
+    varnames(result_MAP)[5]<-"sigmasq"
+    varnames(result_MAP)[6]<-"tau"
+    summary(result_MAP)
+    
+    
