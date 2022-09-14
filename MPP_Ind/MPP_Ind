@@ -1,0 +1,59 @@
+#MPP with independent weight parameters (MPP Ind) for regression model
+
+    #Preparing data for analysis
+    source("../Data_preparation",local=TRUE)
+
+
+    #This source is a function which returns ML, SC,lambda,mu,a,b with 
+    ## given data and weight values; the function is denoted by f0
+    source("../function0_ML.R",local=TRUE)
+
+
+    #code source fof estimating the weight parameters without prior
+    source("../weightwithoutprior.R",local=TRUE)
+
+
+    #This source is a function that gives alpha and beta given mu and sigmasq of beta distribution
+    source("../function_estBetaParams.R",local=TRUE)
+
+    
+    #Function used to sample the weights in logit scale
+    source("../function_logitbeta.R",local=TRUE)
+     
+    
+    ## This source is for MH functions for MPP methods
+    source("../function_MH_MPP_Ind.R",local=TRUE)
+    
+    
+    #returns from MH, including posterior weights
+    return_MH_MPP_Ind=MH_MPP_Ind(niter,post_mean,X0,Y0,n0,dim,a0,b0,mu0,Lambda0,X,Y,n,post_mean,post_sd,n_hist_trials)
+    
+    
+    #posteriors of weights
+    postweight_MPP_Ind=return_MH_MPP_Ind$s_weight
+    n_MPP_Ind_post <- length(postweight_MPP_Ind[,1]) 
+    
+    
+    ##  Computation of other model parameters MPP_Ind
+    Lambda_MPP_Ind = list(n_MPP_Ind_post)
+    mu_MPP_Ind = list(n_MPP_Ind_post)
+    a_MPP_Ind = list(n_MPP_Ind_post)
+    b_MPP_Ind = list(n_MPP_Ind_post)
+    return_f04 = list(n_MPP_Ind_post)
+    for (i in 1: n_MPP_Ind_post){
+      return_f04[[i]] <- f0(weight=postweight_MPP_Ind[i,],X0,Y0,n0,dim,a0,b0,mu0,Lambda0,X,Y,n)
+      Lambda_MPP_Ind[[i]] =  return_f04[[i]]$Lambda_star
+      mu_MPP_Ind[[i]]=  return_f04[[i]]$mu_star
+      a_MPP_Ind[[i]] = return_f04[[i]]$a_star
+      b_MPP_Ind[[i]] = return_f04[[i]]$b_star
+    }
+    sigma2_MPP_Ind <- rinvgamma(n=length(unlist(a_MPP_Ind)),shape=unlist(a_MPP_Ind),unlist(b_MPP_Ind))
+    beta_MPP_Ind <- matrix(0,nrow=length(unlist(a_MPP_Ind)),ncol=length(mu_MPP_Ind[[1]]))
+    for(i in 1:length(unlist(a_MPP_Ind))){
+      beta_MPP_Ind[i,] <- rmnorm(n=1,mu_MPP_Ind[[i]],sigma2_MPP_Ind[i]*solve(Lambda_MPP_Ind[[i]]))
+    }
+    result_MPP_Ind<-as.mcmc(as.data.frame((beta_MPP_Ind))) 
+    summary(result_MPP_Ind)
+    
+    
+    
