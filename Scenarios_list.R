@@ -1,3 +1,4 @@
+#scenarios
 if(sc==1){
   cata_effect0 <-1
   cont_effect0 <- 0.5
