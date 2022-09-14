@@ -140,12 +140,6 @@
     MAP_model<-jags.model(file="MAPmodel.bug", data=  MAP_data, inits=MAP_inits , n.chains=1, n.adapt=2*niter) 
     update(MAP_model, n.iter=2*niter) # burn in
     result_MAP<-coda.samples(MAP_model, variable.names=MAP_parameters.to.save,thin = 5, n.iter=5*niter)
-    varnames(result_MAP)[1]<-"Beta0"
-    varnames(result_MAP)[2]<-"Treatment_effect"
-    varnames(result_MAP)[3]<-"Categorical"
-    varnames(result_MAP)[4]<-"Continuous"
-    varnames(result_MAP)[5]<-"sigmasq"
-    varnames(result_MAP)[6]<-"tau"
     summary(result_MAP)
     
     
@@ -157,13 +151,6 @@
     Robust_MAP_model<-jags.model(file="Robust_MAPmodel", data= Robust_MAP_data, inits=Robust_MAP_inits , n.chains=1, n.adapt=2*niter)
     update(Robust_MAP_model, n.iter=2*niter) # burn in
     result_Robust_MAP<-coda.samples(Robust_MAP_model, variable.names=Robust_MAP_parameters.to.save,thin = 5, n.iter=5*niter)
-    varnames(result_Robust_MAP)[1]<-"Beta0"
-    varnames(result_Robust_MAP)[2]<-"Treatment_effect"
-    varnames(result_Robust_MAP)[3]<-"Categorical"
-    varnames(result_Robust_MAP)[4]<-"Continuous"
-    varnames(result_Robust_MAP)[5]<-"sigmasq"
-    varnames(result_Robust_MAP)[6]<-"tau"
-    varnames(result_Robust_MAP)[7]<-"wr_post"
     summary(result_Robust_MAP)
   
   
