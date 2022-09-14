@@ -1,0 +1,60 @@
+#MPP with robustification applied to individual powers (Roust_DMPP_1)
+    
+
+    #Preparing data for analysis
+    source("../Data_preparation",local=TRUE)
+    
+  
+    #Returns ML, SC,lambda,mu,a,b with 
+    #given data and weight values; the function is denoted by f0
+    source("../function0_ML.R",local=TRUE)
+ 
+    
+    #For estimating the weight parameters without prior
+    source("../weightwithoutprior.R",local=TRUE)
+
+    
+    #Gives alpha and beta given mu and sigmasq of beta distribution
+    source("../function_estBetaParams.R",local=TRUE)
+    
+    
+    #To sample the weights in logit scale 
+    source("../function_logitbeta.R",local=TRUE)
+    
+    
+    
+    #This source is for MH functions for MPP methods
+    source("../function_MH_Robust_DMPP_1.R",local=TRUE)
+    
+    
+    #Returns from MH, including posterior weights
+    return_MH_Robust_DMPP_1=MH_Robust_DMPP_1(niter,post_mean,X0,Y0,n0,dim,a0,b0,mu0,Lambda0,X,Y,n,post_mean,post_sd,n_hist_trials)
+   
+    
+    # posterior of power parameters Robust_DMPP_1
+    postweight_Robust_DMPP_1=return_MH_Robust_DMPP_1$s_weight 
+    n_Robust_DMPP_1_post <- length(postweight_Robust_DMPP_1[,1])
+    
+    
+    #computation of model parameters Robust_DMPP_1
+    Lambda_Robust_DMPP_1 = list(n_Robust_DMPP_1_post)
+    mu_Robust_DMPP_1 = list(n_Robust_DMPP_1_post)
+    a_Robust_DMPP_1 = list(n_Robust_DMPP_1_post)
+    b_Robust_DMPP_1 = list(n_Robust_DMPP_1_post)
+    return_f04 = list(n_Robust_DMPP_1_post)
+    for (i in 1: n_Robust_DMPP_1_post){
+      return_f04[[i]] <- f0(weight=postweight_Robust_DMPP_1[i,],X0,Y0,n0,dim,a0,b0,mu0,Lambda0,X,Y,n)
+      Lambda_Robust_DMPP_1[[i]] =  return_f04[[i]]$Lambda_star
+      mu_Robust_DMPP_1[[i]]=  return_f04[[i]]$mu_star
+      a_Robust_DMPP_1[[i]] = return_f04[[i]]$a_star
+      b_Robust_DMPP_1[[i]] = return_f04[[i]]$b_star
+    }
+    sigma2_Robust_DMPP_1 <- rinvgamma(n=length(unlist(a_Robust_DMPP_1)),shape=unlist(a_Robust_DMPP_1),unlist(b_Robust_DMPP_1))
+    beta_Robust_DMPP_1 <- matrix(0,nrow=length(unlist(a_Robust_DMPP_1)),ncol=length(mu_Robust_DMPP_1[[1]]))
+    for(i in 1:length(unlist(a_Robust_DMPP_1))){
+      beta_Robust_DMPP_1[i,] <- rmnorm(n=1,mu_Robust_DMPP_1[[i]],sigma2_Robust_DMPP_1[i]*solve(Lambda_Robust_DMPP_1[[i]]))
+    }
+    result_Robust_DMPP_1<-as.mcmc(as.data.frame((beta_Robust_DMPP_1))) 
+    summary(result_Robust_DMPP_1)
+   
+    
